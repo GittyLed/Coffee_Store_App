@@ -1,12 +1,11 @@
+import 'dart:math';
 import 'package:coffee_store_app/components/my_text_field.dart';
-import 'package:coffee_store_app/model/coffee_shop.dart';
 import 'package:coffee_store_app/pages/home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 
 import '../const.dart';
 import '../services/user_service.dart';
-// import 'home_page.dart';
 import '../services/email_service.dart';
 
 class LoginPage extends StatefulWidget {
@@ -15,7 +14,7 @@ class LoginPage extends StatefulWidget {
 
 class LoginPageState extends State<LoginPage> {
   int selectedIndex = 0;
-  bool flag = false;
+  bool isCodeSent = false;
   final List options = ["מייל", "טלפון"];
   late String code;
 
@@ -27,9 +26,11 @@ class LoginPageState extends State<LoginPage> {
   FocusNode myFocusNode = FocusNode();
   final UserService userService = UserService();
 
-  String generateCode(){
-    return (100000 + (999999 - 100000) * (new DateTime.now().millisecondsSinceEpoch % 1000)).toString(); 
-  }
+  String generateCode() {
+  var rng = Random();
+  int randomNumber = 100000 + rng.nextInt(900000);
+  return randomNumber.toString();
+}
 
   void navigateButtonBar(int index) {
     setState(() {
@@ -78,16 +79,15 @@ class LoginPageState extends State<LoginPage> {
         SizedBox(
           height: 10,
         ),
-        flag
+        isCodeSent
             ? Text("we sent you a code to your email.")
             : GestureDetector(
                 onTap: () {
                   setState(() {
-                    flag = true;
+                    isCodeSent = true;
                   });
-                  // code = generateCode();
-                  code = "123456";
-                  // verificationEmail(controller.text, code);
+                  code = generateCode();
+                  sendVerificationCode(controller.text, code);
                 },
                 child: Container(
                   padding: EdgeInsets.all(25),
@@ -166,12 +166,14 @@ class LoginPageState extends State<LoginPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Padding(
-              padding: EdgeInsets.all(25),
-              child: Image.asset("lib/images/latte.png", height: 100),
-            ),
+            Image.asset("lib/images/latte.png", height: 100),
+
+            // Padding(
+            //   padding: EdgeInsets.all(25),
+            //   child: Image.asset("lib/images/latte.png", height: 100),
+            // ),
             SizedBox(
-              height: 20,
+              height: 24,
             ),
             Text(
               'היי, ברוכים הבאים',
@@ -192,7 +194,7 @@ class LoginPageState extends State<LoginPage> {
             SizedBox(
               height: 20,
             ),
-            flag ? codeInput() : Container(),
+            isCodeSent ? codeInput() : Container(),
           ],
         ),
       ),
